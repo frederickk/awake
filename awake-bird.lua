@@ -1,4 +1,13 @@
--- awake: time changes
+--  Awake             __
+--  -Bird            __   __
+--                __
+--             __
+--        __
+--        _______________
+--        __
+--
+--
+-- 2.2.1 @frederickk
 -- 2.2.0 @tehn
 -- llllllll.co/t/21022
 --
@@ -30,7 +39,7 @@
 -- *toggle
 -- E2/E3 changes
 
-engine.name = 'PolyPerc'
+engine.name = 'Bird'
 
 local hs = include('lib/halfsecond')
 
@@ -62,39 +71,39 @@ local two = {
   data = {5,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
 }
 
-function add_pattern_params() 
+function add_pattern_params()
   params:add_separator()
-  
-  params:add{type = "number", id = "one_length", name = "<one> length]", min=1, max=16, 
+
+  params:add{type = "number", id = "one_length", name = "<one> length]", min=1, max=16,
     default = one.length,
     action=function(x) one.length = x end }
 
-  params:add{type = "number", id = "one_start", name = "<one> start]", min=1, max=16, 
+  params:add{type = "number", id = "one_start", name = "<one> start]", min=1, max=16,
     default=one.start,
     action=function(x) one.start = x end }
-  
+
   for i=1,16 do
-    params:add{type = "number", id= ("one_data_"..i), name = ("<one> data "..i), min=0, max=8, 
+    params:add{type = "number", id= ("one_data_"..i), name = ("<one> data "..i), min=0, max=8,
       default = one.data[i],
       action=function(x)one.data[i] = x end }
   end
-  
+
   params:add_separator()
-  
-  params:add{type = "number", id = "two_length", name = "<two> length]",  min=1, max=16, 
+
+  params:add{type = "number", id = "two_length", name = "<two> length]",  min=1, max=16,
     default = two.length,
     action=function(x)two.length = x end}
-  
-  params:add{type = "number", id = "two_start", name = "<two> start]",  min=1, max=16, 
+
+  params:add{type = "number", id = "two_start", name = "<two> start]",  min=1, max=16,
     default = two.start,
     action=function(x)two.start = x end }
-  
+
   for i=1,16 do
-    params:add{type = "number", id= "two_data_"..i, name = "<two> data "..i,  min=0, max=8, 
+    params:add{type = "number", id= "two_data_"..i, name = "<two> data "..i,  min=0, max=8,
       default = two.data[i],
       action=function(x) two.data[i] = x end }
   end
-  
+
   params:add_separator()
 end
 
@@ -114,8 +123,8 @@ local edit_ch = 1
 local edit_pos = 1
 
 snd_sel = 1
-local snd_names = {"cut","gain","pw","rel","fb","rate", "pan", "delay_pan"}
-local snd_params = {"cutoff","gain","pw","release", "delay_feedback","delay_rate", "pan", "delay_pan"}
+local snd_names = {"pw", "att", "rel", "fb", "rate", "pan", "delay_pan"}
+local snd_params = {"pw", "attack", "release", "delay_feedback", "delay_rate", "pan", "delay_pan"}
 local NUM_SND_PARAMS = #snd_params
 
 local BeatClock = require 'beatclock'
@@ -179,7 +188,7 @@ local function step()
       elseif params:get("output") == 5 then
         crow.ii.jf.play_note((note_num-60)/12,5)
       end
-      
+
       -- MIDI out
       if (params:get("output") == 2 or params:get("output") == 3) then
         midi_out_device:note_on(note_num, 96, midi_out_channel)
@@ -212,10 +221,10 @@ function init()
   for i = 1, #MusicUtil.SCALES do
     table.insert(scale_names, string.lower(MusicUtil.SCALES[i].name))
   end
-  
+
   midi_out_device = midi.connect(1)
   midi_out_device.event = function() end
-  
+
   clk.on_step = step
   clk.on_stop = stop
   clk.on_select_internal = function() clk:start() end
@@ -230,9 +239,9 @@ function init()
         crow.output[1].action = "{to(5,0),to(5,0.05),to(0,0)}"
       end
     end}
-  
+
   notes_off_metro.event = all_notes_off
-  
+
   params:add{type = "option", id = "output", name = "output",
     options = options.OUTPUT,
     action = function(value)
@@ -245,7 +254,7 @@ function init()
     end}
   params:add{type = "number", id = "midi_out_device", name = "midi out device",
     min = 1, max = 4, default = 1,
-    
+
     action = function(value) midi_out_device = midi.connect(value) end}
   params:add{type = "number", id = "midi_out_channel", name = "midi out channel",
     min = 1, max = 16, default = 1,
@@ -254,7 +263,7 @@ function init()
       midi_out_channel = value
     end}
   params:add_separator()
-  
+
   params:add{type = "option", id = "step_length", name = "step length", options = options.STEP_LENGTH_NAMES, default = 8,
     action = function(value)
       clk.ticks_per_step = 96 / options.STEP_LENGTH_DIVIDERS[value]
@@ -264,7 +273,7 @@ function init()
   params:add{type = "option", id = "note_length", name = "note length",
     options = {"25%", "50%", "75%", "100%"},
     default = 4}
-  
+
   params:add{type = "option", id = "scale_mode", name = "scale mode",
     options = scale_names, default = 5,
     action = function() build_scale() end}
@@ -275,27 +284,27 @@ function init()
     min = 0, max = 100, default = 100,}
   params:add_separator()
 
-  cs_AMP = controlspec.new(0,1,'lin',0,0.5,'')
+  cs_AMP = controlspec.new(0,1,'lin',0,0.2,'')
   params:add{type="control",id="amp",controlspec=cs_AMP,
     action=function(x) engine.amp(x) end}
 
-  cs_PW = controlspec.new(0,100,'lin',0,50,'%')
+  cs_PW = controlspec.new(0,100,'lin',0,0,'%')
   params:add{type="control",id="pw",controlspec=cs_PW,
     action=function(x) engine.pw(x/100) end}
 
-  cs_REL = controlspec.new(0.1,3.2,'lin',0,1.2,'s')
+  cs_ATT = controlspec.new(0.01,5.0,'lin',0,0.01,'s')
+  params:add{type="control",id="attack",controlspec=cs_ATT,
+    action=function(x) engine.attack(x) end}
+
+  cs_REL = controlspec.new(0.1,5.0,'lin',0,1.2,'s')
   params:add{type="control",id="release",controlspec=cs_REL,
     action=function(x) engine.release(x) end}
 
-  cs_CUT = controlspec.new(50,5000,'exp',0,800,'hz')
-  params:add{type="control",id="cutoff",controlspec=cs_CUT,
-    action=function(x) engine.cutoff(x) end}
+  -- cs_GAIN = controlspec.new(0,4,'lin',0,1,'')
+  -- params:add{type="control",id="gain",controlspec=cs_GAIN,
+  --   action=function(x) engine.gain(x) end}
 
-  cs_GAIN = controlspec.new(0,4,'lin',0,1,'')
-  params:add{type="control",id="gain",controlspec=cs_GAIN,
-    action=function(x) engine.gain(x) end}
-  
-  cs_PAN = controlspec.new(-1,1, 'lin',0,0,'')
+    cs_PAN = controlspec.new(-1,1, 'lin',0,0,'')
   params:add{type="control",id="pan",controlspec=cs_PAN,
     action=function(x) engine.pan(x) end}
 
@@ -312,7 +321,7 @@ function init()
   clk:start()
 
   hs.init()
-  
+
   add_pattern_params()
   params:default()
 
@@ -471,8 +480,8 @@ function key(n,z)
 
 --[[
       gridredraw()
-      
-      
+
+
       if not clk.external then
         if clk.playing then
           clk:stop()
@@ -565,7 +574,7 @@ function redraw()
     screen.text(alt==false and "bpm" or "div")
     screen.level(15)
     screen.move(0,40)
-    screen.text(alt==false and params:get("bpm") or params:string("step_length")) 
+    screen.text(alt==false and params:get("bpm") or params:string("step_length"))
     screen.level(1)
     screen.move(0,50)
     screen.text(alt==false and "root" or "scale")
